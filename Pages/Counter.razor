@@ -1,0 +1,63 @@
+﻿@page "/counter"
+@using System.Timers
+
+
+<h1>Counter</h1>
+<p>Current count: @currentCount</p>
+<svg width = "200" height = "200">
+    <circle cx = "@x" cy = "@y" r = "5" fill = "#344490"/> 
+</svg><br>
+
+<button class="btn btn-primary" @onclick="StartAnimation">Click me</button>
+<button class="btn btn-primary" @onclick="StopAnimation">Click me</button>
+
+@code {
+    private static int currentCount = 0;
+   private int sense = 1;
+   private int x = 50, y = 50;
+    static Timer mytimer = new Timer();
+    private void StartAnimation ()
+    {
+       if (currentCount == 0)
+       {
+           mytimer.Interval = 50;
+           mytimer.Elapsed += Animation;
+       }
+       mytimer.Start();
+       currentCount++;
+    }
+    public void StopAnimation (){
+        mytimer.Stop();
+     }
+     public void Animation(object sender,EventArgs e) 
+     {
+         currentCount++;
+        Console.WriteLine("Position x " + x.ToString() + "," + y.ToString());
+        if (y < 10 || y > 190 ) sense = sense * -1;
+        y += sense * 2; 
+        InvokeAsync(StateHasChanged);
+             
+     }
+  
+    private void IncrementCount()
+    {   
+        if(currentCount==0)
+        {
+            mytimer.Interval= 1000;
+            mytimer.Elapsed += IncrementCountAgain;
+            mytimer.Start();
+        }
+        currentCount++;
+    }
+
+    private void IncrementCountAgain(Object sender,EventArgs e)
+    {
+            currentCount++;
+            Console.WriteLine("Again " + currentCount.ToString());
+                if(currentCount>10)
+                {
+                    mytimer.Dispose();
+                }
+            InvokeAsync(StateHasChanged);
+    }
+}
