@@ -1,30 +1,45 @@
 ﻿@page "/counter"
 @using System.Timers
-
-
+@using System.Collections.Generic
+@using Data
+@using tutorialParallelism.Data
 <h1>Counter</h1>
 <p>Current count: @currentCount</p>
-<svg width = "200" height = "200">
-    <circle cx = "@x" cy = "@y" r = "5" fill = "#344490"/> 
+<svg width="200" height="200">
+    @foreach (var ball in balls){
+        <circle cx="@ball.x" cy="@ball.y" r="5" fill="@ball.color"/>
+    }
 </svg><br>
-
-<button class="btn btn-primary" @onclick="StartAnimation">Click me</button>
-<button class="btn btn-primary" @onclick="StopAnimation">Click me</button>
-
+<button class="btn btn-primary" @onclick="StartAnimation">Start</button>
+<button class="btn btn-primary" @onclick="StopAnimation">Stop</button>
 @code {
     private static int currentCount = 0;
-   private int sense = 1;
-   private int x = 50, y = 50;
+    List<MovingBall> balls = new List<MovingBall>();
     static Timer mytimer = new Timer();
-    private void StartAnimation ()
+    public void init_balls (){
+        Random random = new Random(230);
+        MovingBall p;
+        for (int i = 0; i < 50; i++){
+            int x = random.Next(10,190);
+            int y = random.Next(10,190);
+            p = new MovingBall(x,y);
+            p.color = "#ABE280";
+            p.setLimitX(10,190);
+            p.setLimitY(10,190);
+            x = random.Next(0,4);
+            y = random.Next(0,4);
+            p.setVelocity(x,y);
+            balls.Add(p);
+        }
+    }
+    public int sense = 1;
+    public void StartAnimation ()
     {
-       if (currentCount == 0)
-       {
-           mytimer.Interval = 50;
-           mytimer.Elapsed += Animation;
-       }
-       mytimer.Start();
-       currentCount++;
+        init_balls();
+            mytimer.Interval = 50;
+            mytimer.Elapsed += Animation;
+        mytimer.Start();
+        currentCount++;
     }
     public void StopAnimation (){
         mytimer.Stop();
@@ -32,13 +47,10 @@
      public void Animation(object sender,EventArgs e) 
      {
          currentCount++;
-        Console.WriteLine("Position x " + x.ToString() + "," + y.ToString());
-        if (y < 10 || y > 190 ) sense = sense * -1;
-        y += sense * 2; 
-        InvokeAsync(StateHasChanged);
-             
+         foreach(var ball in balls) ball.next();
+             InvokeAsync(StateHasChanged);
      }
-  
+    public int x = 50, y = 50;
     private void IncrementCount()
     {   
         if(currentCount==0)
